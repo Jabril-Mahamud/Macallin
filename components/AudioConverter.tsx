@@ -1,18 +1,18 @@
+'use client'
 import { useState, useEffect, useCallback } from 'react';
-import Image from 'next/image';
-import { Input } from '@/components/ui/input';
+import Image, { StaticImageData } from 'next/image';
+import { Input } from '@/components/ui/input'; // Ensure this is correctly defined in your project
 import { LoadingButton } from '@/components/LoadingButton';
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Volume2 } from 'lucide-react';
 import OswaldIcon from "@/components/images/Oswald.png";
 import DorothyIcon from "@/components/images/Dorothy.png";
-import ReactAudioPlayer from 'react-audio-player';
 
 interface Voice {
   name: string;
   id: string;
-  icon: any;
+  icon: StaticImageData;
   description: string;
 }
 
@@ -44,7 +44,7 @@ export function AudioConverter({ maxLength = 1000 }: AudioConverterProps) {
   const { toast } = useToast();
 
   useEffect(() => {
-    let currentAudioUrl = audioSrc;
+    const currentAudioUrl = audioSrc;
     return () => {
       if (currentAudioUrl) {
         URL.revokeObjectURL(currentAudioUrl);
@@ -54,7 +54,7 @@ export function AudioConverter({ maxLength = 1000 }: AudioConverterProps) {
 
   const handleTextChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const newText = e.target.value;
-    if (newText.length <= (maxLength ?? 1000)) {
+    if (newText.length <= maxLength) {
       setText(newText);
     }
   }, [maxLength]);
@@ -154,12 +154,12 @@ export function AudioConverter({ maxLength = 1000 }: AudioConverterProps) {
                     ? 'bg-blue-50 border-2 border-blue-500 shadow-md scale-105' 
                     : 'border-2 border-gray-200 hover:border-blue-300'
                   }`}
-                aria-pressed={selectedVoiceId === voice.id}
+                aria-checked={selectedVoiceId === voice.id}
                 role="radio"
               >
                 <Image
                   src={voice.icon}
-                  alt=""
+                  alt={voice.name} // Descriptive alt text for accessibility
                   width={64}
                   height={64}
                   className="rounded-full"
@@ -184,10 +184,10 @@ export function AudioConverter({ maxLength = 1000 }: AudioConverterProps) {
 
         {audioSrc && (
           <div className="rounded-lg border bg-green-50 p-6 shadow">
-            <ReactAudioPlayer
-              src={audioSrc}
+            <audio
               controls
-              autoPlay={false} // Set to true if you want the audio to play automatically
+              src={audioSrc}
+              className="w-full rounded-lg"
               onError={() => {
                 toast({
                   description: 'Could not play audio. Please try again.',
@@ -195,8 +195,9 @@ export function AudioConverter({ maxLength = 1000 }: AudioConverterProps) {
                 });
                 setAudioSrc(null);
               }}
-              className="w-full rounded-lg" // You can style as needed
-            />
+            >
+              Your browser does not support audio playback.
+            </audio>
           </div>
         )}
       </CardContent>

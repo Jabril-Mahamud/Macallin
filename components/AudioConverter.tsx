@@ -1,3 +1,5 @@
+// components/AudioConverter.tsx
+
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
@@ -10,10 +12,19 @@ interface AudioConverterProps {
   maxLength?: number;
 }
 
+// Define available voices and corresponding IDs
+const VOICE_OPTIONS = [
+  { name: 'Oswald', id: 'Pw7NjARk1Tw61eca5OiP' }, // Replace with actual ElevenLabs Voice ID
+  { name: 'Dorothy', id: 'ThT5KcBeYPX3keUQqHPh' },
+  // Add more voices with their specific IDs as needed
+];
+
 export function AudioConverter({ maxLength = 1000 }: AudioConverterProps) {
   const [text, setText] = useState('');
   const [audioSrc, setAudioSrc] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [selectedVoiceId, setSelectedVoiceId] = useState<string>(VOICE_OPTIONS[0].id);
+
   const { toast } = useToast();
 
   useEffect(() => {
@@ -54,7 +65,7 @@ export function AudioConverter({ maxLength = 1000 }: AudioConverterProps) {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ text })
+        body: JSON.stringify({ text, selectedVoiceId }) // Pass selectedVoiceId to API
       });
 
       if (!response.ok) {
@@ -81,7 +92,7 @@ export function AudioConverter({ maxLength = 1000 }: AudioConverterProps) {
     } finally {
       setIsLoading(false);
     }
-  }, [text, audioSrc, toast]);
+  }, [text, audioSrc, selectedVoiceId, toast]);
 
   return (
     <Card className="w-full max-w-md mx-auto">
@@ -102,6 +113,22 @@ export function AudioConverter({ maxLength = 1000 }: AudioConverterProps) {
           <p className="text-sm text-muted-foreground text-right">
             {text.length}/{maxLength} characters
           </p>
+        </div>
+
+        {/* Voice selection dropdown */}
+        <div className="space-y-2">
+          <label className="block text-sm font-medium">Select Voice:</label>
+          <select
+            value={selectedVoiceId}
+            onChange={(e) => setSelectedVoiceId(e.target.value)}
+            className="w-full rounded-md border border-gray-300 px-3 py-2"
+          >
+            {VOICE_OPTIONS.map((voice) => (
+              <option key={voice.id} value={voice.id}>
+                {voice.name}
+              </option>
+            ))}
+          </select>
         </div>
 
         <LoadingButton 

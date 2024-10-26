@@ -5,8 +5,8 @@ export const runtime = 'edge'; // Optional: Use edge runtime for better performa
 
 export async function POST(request: Request) {
   try {
-    const { text } = await request.json();
-    const VOICE_ID = process.env.ELEVENLABS_VOICE_ID;
+    const { text, selectedVoiceId } = await request.json();
+    const VOICE_ID = selectedVoiceId || process.env.ELEVENLABS_VOICE_ID;
     const API_KEY = process.env.ELEVENLABS_API_KEY;
 
     if (!text) {
